@@ -15,7 +15,7 @@ export class TestingService {
   async deleteAll() {
     // const client = await this.pool.connect();
     try {
-      await this.dataSource.query('DROP TABLE users')
+      await this.dataSource.query('TRUNCATE TABLE users')
       // const result = await client.query('DROP TABLE users')
       // return result.rows
     } finally {

@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import cors from "cors-ts";
 import {SETTINGS} from "./core/settings/settings";
 import { useContainer } from "class-validator";
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { BadRequestExceptionFilter } from './core/exceptions/exception-filters/bad-request-exception-filter';
 import cookieParser from 'cookie-parser'
 
