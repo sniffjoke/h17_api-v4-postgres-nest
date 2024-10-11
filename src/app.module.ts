@@ -5,6 +5,7 @@ import { SETTINGS } from './core/settings/settings';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserEntity } from './features/users/domain/user.entity';
 import { UsersModule } from './features/users/users.module';
+import { TestingModule } from './features/testing/testing.module';
 
 @Module({
     imports: [
@@ -28,7 +29,8 @@ import { UsersModule } from './features/users/users.module';
             autoLoadEntities: true,
             synchronize: true,
         }),
-      UsersModule
+      UsersModule,
+      TestingModule
     ],
     controllers: [],
     providers: [],
