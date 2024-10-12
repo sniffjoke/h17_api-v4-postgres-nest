@@ -16,6 +16,8 @@ export class TestingService {
     // const client = await this.pool.connect();
     try {
       await this.dataSource.query('TRUNCATE TABLE users')
+      await this.dataSource.query('TRUNCATE TABLE devices')
+      await this.dataSource.query('TRUNCATE TABLE tokens')
       // const result = await client.query('DROP TABLE users')
       // return result.rows
     } finally {

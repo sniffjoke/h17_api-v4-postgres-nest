@@ -10,6 +10,7 @@ export const SETTINGS = {
     USERNAME: process.env.DB_USERNAME,
     PASSWORD: process.env.DB_PASSWORD,
     DATABASE: process.env.DATABASE_NAME,
+    API_URL: process.env.API_URL
 
   },
   VARIABLES: {
