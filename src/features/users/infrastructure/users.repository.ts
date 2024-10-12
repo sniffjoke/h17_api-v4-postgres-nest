@@ -37,6 +37,7 @@ export class UsersRepository {
   }
 
   async deleteUserById(id: string) {
+    const findedUser = await this.findUserById(id)
     return await this.uRepository.delete(id);
   }
 

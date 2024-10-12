@@ -2,21 +2,29 @@ import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode } from 
 import { UsersService } from '../application/users.service';
 import { CreateUserDto } from './models/input/create-user.dto';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
+import { UsersQueryRepository } from '../infrastructure/users.query-repositories';
 
 @Controller('sa')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly usersQueryRepository: UsersQueryRepository
+  ) {
+  }
 
   @Post('users')
   @UseGuards(BasicAuthGuard)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.createUser(createUserDto, false);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const userId = await this.usersService.createUser(createUserDto, false);
+    const user = await this.usersQueryRepository.userOutput(userId)
+    return user
   }
 
   @Get('users')
   @UseGuards(BasicAuthGuard)
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return users.map(user => this.usersQueryRepository.userMap(user))
   }
 
   // @Get(':id')
