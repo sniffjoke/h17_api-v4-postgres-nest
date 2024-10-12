@@ -22,7 +22,7 @@ export class UsersQueryRepository {
   userMap(user: UserEntity) {
     const {email, login, createdAt, id} = user
     return {
-      id,
+      id: String(id),
       login,
       email,
       createdAt
