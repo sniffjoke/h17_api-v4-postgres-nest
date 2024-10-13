@@ -33,17 +33,19 @@ export class UsersQueryRepository {
 
   async getAllUsersWithQuery(query: any): Promise<PaginationBaseModel<UserEntity>> {
     const generateQuery = await this.generateQuery(query);
+    console.log(generateQuery);
     const items = await this.uRepository
       .find({
         ...generateQuery.userParamsFilter,
         order: {
-          [generateQuery.sortBy]: generateQuery.sortDirection
+          [generateQuery.sortBy]: generateQuery.sortDirection,
         },
         take: generateQuery.pageSize,
         skip: (generateQuery.page - 1) * generateQuery.pageSize,
-      })
-      // .find({$or: [{email: generateQuery.filterEmail}, {login: generateQuery.filterLogin}]})
-      // .({ [generateQuery.sortBy]: generateQuery.sortDirection })
+      });
+
+    // .find({$or: [{email: generateQuery.filterEmail}, {login: generateQuery.filterLogin}]})
+    // .({ [generateQuery.sortBy]: generateQuery.sortDirection })
     const itemsOutput = items.map((item: UserEntity) => this.userMap(item));
     const resultPosts = new PaginationBaseModel<UserEntity>(generateQuery, itemsOutput);
     return resultPosts;
@@ -52,12 +54,10 @@ export class UsersQueryRepository {
   private async generateQuery(query: any) {
     const searchLoginTerm = query.searchLoginTerm ? query.searchLoginTerm : '';
     const searchEmailTerm = query.searchEmailTerm ? query.searchEmailTerm : '';
-    const filterLogin = Like(`%${searchLoginTerm}%`);
-    const filterEmail = Like(`%${searchEmailTerm}%`);
     const userParamsFilter = {
       where: [
-        { login: filterLogin },
-        { email: filterEmail },
+        { email: Like(`%${searchEmailTerm}%`) },
+        { login: Like(`%${searchLoginTerm}%`) },
       ],
     };
     const totalCount = await this.uRepository.count(userParamsFilter);
@@ -71,8 +71,8 @@ export class UsersQueryRepository {
       sortBy: query.sortBy ? query.sortBy : 'createdAt',
       sortDirection: query.sortDirection ? query.sortDirection : 'desc',
       userParamsFilter,
-      filterLogin,
-      filterEmail,
+      // filterLogin,
+      // filterEmail,
     };
   }
 

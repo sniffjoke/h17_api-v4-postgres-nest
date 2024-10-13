@@ -23,7 +23,6 @@ export class UsersController {
   @Get('users')
   @UseGuards(BasicAuthGuard)
   async findAll(@Query() query: any) {
-    console.log(query);
     // const users = await this.usersService.findAll();
     const users = await this.usersQueryRepository.getAllUsersWithQuery(query)
     // return users.items.map(user => this.usersQueryRepository.userMap(user))
