@@ -30,7 +30,7 @@ export class UserEntity {
   @Column({type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
   createdAt: string
 
-  @Column({type: 'varchar'})
-  emailConfirmation: EmailConfirmationDto
+  @Column({type: 'varchar', default: new EmailConfirmationDto()})
+  emailConfirmation: EmailConfirmationModel
 
 }
