@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { UserEntity } from '../domain/user.entity';
 import { CreateUserDto } from '../api/models/input/create-user.dto';
@@ -38,7 +38,7 @@ export class UsersRepository {
   async findUserByLogin(login: string) {
     const findedUser = await this.uRepository.findOneBy({ login });
     if (!findedUser) {
-      throw new NotFoundException('User not found');
+      throw new UnauthorizedException('User not found');
     }
     return findedUser;
   }
@@ -54,18 +54,30 @@ export class UsersRepository {
   async findUserByCode(code: string) {
     const findedUser = await this.uRepository.findOne({
       where: {
-        emailConfirmation: {confirmationCode: code},
+        emailConfirmation: { confirmationCode: code },
       },
     });
     if (!findedUser) {
       throw new NotFoundException('User not found');
     }
-    return findedUser
+    return findedUser;
   }
 
   async deleteUserById(id: string) {
     const findedUser = await this.findUserById(id);
     return await this.uRepository.delete(id);
+  }
+
+  async checkUserExists(login?: string, email?: string) {
+    const findedUser = await this.uRepository.findOne({
+      where: [
+        { login },
+        { email },
+      ],
+    });
+    if (findedUser) {
+      throw new BadRequestException('User already exists');
+    }
   }
 
 }

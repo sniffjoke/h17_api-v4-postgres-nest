@@ -23,9 +23,6 @@ export class AuthService {
 
   async login(loginDto: LoginDto, myIp: string, userAgent: string) {
     const findedUser = await this.usersRepository.findUserByLogin(loginDto.loginOrEmail);
-    if (!findedUser) {
-      throw new UnauthorizedException('User not found');
-    }
     const comparePass = await this.cryptoService.comparePassword(loginDto.password, findedUser.password);
     if (!comparePass) {
       throw new UnauthorizedException('Password not match');

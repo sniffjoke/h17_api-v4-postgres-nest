@@ -29,7 +29,6 @@ export class UsersService {
     }
     const hashPassword = await this.cryptoService.hashPassword(createUserDto.password);
     const newUserDto = { ...createUserDto, password: hashPassword, emailConfirmation };
-    console.log(newUserDto);
     const saveData = await this.usersRepository.createUser(newUserDto);
     return saveData.id;
   }

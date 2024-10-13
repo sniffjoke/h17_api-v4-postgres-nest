@@ -33,7 +33,6 @@ export class UsersQueryRepository {
 
   async getAllUsersWithQuery(query: any): Promise<PaginationBaseModel<UserEntity>> {
     const generateQuery = await this.generateQuery(query);
-    console.log(generateQuery);
     const items = await this.uRepository
       .find({
         ...generateQuery.userParamsFilter,
@@ -44,8 +43,6 @@ export class UsersQueryRepository {
         skip: (generateQuery.page - 1) * generateQuery.pageSize,
       });
 
-    // .find({$or: [{email: generateQuery.filterEmail}, {login: generateQuery.filterLogin}]})
-    // .({ [generateQuery.sortBy]: generateQuery.sortDirection })
     const itemsOutput = items.map((item: UserEntity) => this.userMap(item));
     const resultPosts = new PaginationBaseModel<UserEntity>(generateQuery, itemsOutput);
     return resultPosts;

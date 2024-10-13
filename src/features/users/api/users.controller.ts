@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  HttpCode,
+  Query,
+  ValidationPipe,
+  UsePipes,
+} from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { CreateUserDto } from './models/input/create-user.dto';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';

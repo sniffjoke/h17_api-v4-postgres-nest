@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { SETTINGS } from './core/settings/settings';
@@ -9,6 +9,7 @@ import { TokensModule } from './features/tokens/tokens.module';
 import { DevicesModule } from './features/devices/devices.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './features/auth/auth.module';
+import { UserIsExistConstraint } from './core/decorators/async/user-is-exist.decorator';
 
 @Module({
   imports: [
@@ -46,10 +47,11 @@ import { AuthModule } from './features/auth/auth.module';
     TestingModule,
     AuthModule,
     TokensModule,
-    DevicesModule
+    DevicesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+  ],
 })
 export class AppModule {
 }
