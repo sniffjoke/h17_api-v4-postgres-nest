@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto, EmailConfirmationModel } from '../api/models/input/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../domain/user.entity';
@@ -6,10 +6,9 @@ import { Repository } from 'typeorm';
 import { SETTINGS } from '../../../core/settings/settings';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { MailerService } from '@nestjs-modules/mailer';
-import { UuidService } from "nestjs-uuid";
-import { add } from "date-fns";
+import { UuidService } from 'nestjs-uuid';
+import { add } from 'date-fns';
 import { CryptoService } from '../../../core/modules/crypto/application/crypto.service';
-// import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -30,8 +29,9 @@ export class UsersService {
     }
     const hashPassword = await this.cryptoService.hashPassword(createUserDto.password);
     const newUserDto = { ...createUserDto, password: hashPassword, emailConfirmation };
+    console.log(newUserDto);
     const saveData = await this.usersRepository.createUser(newUserDto);
-    return saveData.id
+    return saveData.id;
   }
 
   private createEmailConfirmation(isConfirm: boolean) {
@@ -40,12 +40,12 @@ export class UsersService {
       confirmationCode: this.uuidService.generate(),
       expirationDate: add(new Date(), {
           hours: 1,
-          minutes: 30
-        }
-      ).toString()
+          minutes: 30,
+        },
+      ).toString(),
     };
     const emailConfirmationIsConfirm: EmailConfirmationModel = {
-      isConfirmed: true
+      isConfirmed: true,
     };
     return isConfirm ? emailConfirmationIsConfirm : emailConfirmationNotConfirm;
   }
@@ -54,8 +54,8 @@ export class UsersService {
     await this.mailService.sendMail({
       from: process.env.SMTP_USER,
       to,
-      subject: "Активация аккаунта на " + SETTINGS.PATH.API_URL,
-      text: "",
+      subject: 'Активация аккаунта на ' + SETTINGS.PATH.API_URL,
+      text: '',
       html:
         `
                 <h1>Thank for your registration</h1>
@@ -63,8 +63,39 @@ export class UsersService {
                     <a href='${link}'>Завершить регистрацию</a>
                 </p>
 
-            `
+            `,
     });
+  }
+
+  async resendEmail(email: string) {
+    const isUserExists = await this.usersRepository.findUserByEmail(email);
+    if (isUserExists.emailConfirmation.isConfirmed) {
+      throw new BadRequestException('User already activate')
+    }
+    const emailConfirmation: EmailConfirmationModel = this.createEmailConfirmation(false);
+    await this.sendActivationEmail(email, `${SETTINGS.PATH.API_URL}/?code=${emailConfirmation.confirmationCode as string}`);
+    const updateUserInfo = await this.usersRepository.updateUserByResendEmail(
+      isUserExists,
+      {
+        emailConfirmation,
+      },
+    );
+    return updateUserInfo;
+  }
+
+  async activateEmail(code: string) {
+    const isUserExists = await this.usersRepository.findUserByCode(code);
+    if (isUserExists.emailConfirmation.isConfirmed) {
+      throw new BadRequestException('User already activate')
+    }
+    const emailConfirmation: EmailConfirmationModel = this.createEmailConfirmation(false);
+    const updateUserInfo = await this.usersRepository.updateUserByResendEmail(
+      isUserExists,
+      {
+        emailConfirmation,
+      },
+    );
+    return updateUserInfo;
   }
 
   async deleteUser(id: string) {
@@ -73,7 +104,7 @@ export class UsersService {
   }
 
   async findAll() {
-    return await  this.usersRepository.getAllUsers();
+    return await this.usersRepository.getAllUsers();
   }
 
   // async findOne(id: string) {

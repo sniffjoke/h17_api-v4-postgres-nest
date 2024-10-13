@@ -1,19 +1,26 @@
-import { Body, Controller, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, Res, UseGuards, UsePipes } from '@nestjs/common';
 import { AuthService } from '../application/auth.service';
 import { Response } from 'express';
 import {
-  LoginDto,
+  ActivateAccountDto,
+  LoginDto, ResendActivateCodeDto,
 } from './models/input/auth.input.model';
 import { AuthOutputModel } from './models/output/auth.output.model';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../core/decorators/common/user-agent.decorator';
 import ip from 'ip'
+import { CreateUserDto } from '../../users/api/models/input/create-user.dto';
+import { UsersRepository } from '../../users/infrastructure/users.repository';
+import { UsersQueryRepository } from '../../users/infrastructure/users.query-repositories';
+import { UsersService } from '../../users/application/users.service';
 
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+    private readonly usersQueryRepository: UsersQueryRepository,
   ) {
   }
 
@@ -45,14 +52,14 @@ export class AuthController {
   }
 
   // @UsePipes(ValidationPipe)
-  // @Post('registration')
-  // @HttpCode(204)
+  @Post('registration')
+  @HttpCode(204)
   // @UseGuards(ThrottlerGuard)
-  // async register(@Body() dto: UserCreateModel) {
-  //   const userId = await this.usersService.createUser(dto, false);
-  //   const newUser = await this.usersQueryRepository.userOutput(userId);
-  //   return newUser;
-  // }
+  async register(@Body() dto: CreateUserDto) {
+    const userId = await this.usersService.createUser(dto, false);
+    const newUser = await this.usersQueryRepository.userOutput(userId);
+    return newUser;
+  }
   //
   // @Post('refresh-token')
   // @HttpCode(200)
@@ -75,24 +82,22 @@ export class AuthController {
   //   response.clearCookie('refreshToken');
   //   return logoutUser;
   // }
-  //
-  // // @UsePipes(ValidationPipe)
-  // @Post('registration-confirmation')
-  // @HttpCode(204)
-  // @UseGuards(ThrottlerGuard)
-  // // @UseFilters(NotFoundExceptionFilter)
-  // async activateEmail(@Body() dto: ActivateAccountDto) {
-  //   return await this.usersService.activateEmail(dto.code);
-  // }
-  //
-  // // @UsePipes(ValidationPipe)
-  // @Post('registration-email-resending')
-  // @HttpCode(204)
-  // @UseGuards(ThrottlerGuard)
-  // async resendEmail(@Body() dto: ResendActivateCodeDto) {
-  //   return await this.usersService.resendEmail(dto.email);
-  // }
-  //
+
+  @Post('registration-confirmation')
+  @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
+  // @UseFilters(NotFoundExceptionFilter)
+  async activateEmail(@Body() dto: ActivateAccountDto) {
+    return await this.usersService.activateEmail(dto.code);
+  }
+
+  @Post('registration-email-resending')
+  @HttpCode(204)
+  @UseGuards(ThrottlerGuard)
+  async resendEmail(@Body() dto: ResendActivateCodeDto) {
+    return await this.usersService.resendEmail(dto.email);
+  }
+
   // @Post('password-recovery')
   // @HttpCode(204)
   // async passwordRecovery(@Body() dto: PasswordRecoveryDto) {

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UserEntity } from '../domain/user.entity';
 import { CreateUserDto } from '../api/models/input/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class UsersRepository {
   constructor(
-    @InjectRepository(UserEntity) private readonly uRepository: Repository<UserEntity>
+    @InjectRepository(UserEntity) private readonly uRepository: Repository<UserEntity>,
   ) {
   }
 
@@ -17,19 +17,46 @@ export class UsersRepository {
   }
 
   async getAllUsers() {
-    return await  this.uRepository.find();
+    return await this.uRepository.find();
+  }
+
+  async updateUserByResendEmail(currentData: any, newData: any) {
+    return await this.uRepository.save({
+      ...currentData,
+      ...newData,
+    });
   }
 
   async findUserById(id: string) {
-    const findedUser = await this.uRepository.findOneBy({id});
+    const findedUser = await this.uRepository.findOneBy({ id });
     if (!findedUser) {
       throw new NotFoundException('User not found');
     }
-    return findedUser
+    return findedUser;
   }
 
   async findUserByLogin(login: string) {
-    const findedUser = await this.uRepository.findOneBy({login});
+    const findedUser = await this.uRepository.findOneBy({ login });
+    if (!findedUser) {
+      throw new NotFoundException('User not found');
+    }
+    return findedUser;
+  }
+
+  async findUserByEmail(email: string) {
+    const findedUser = await this.uRepository.findOneBy({ email });
+    if (!findedUser) {
+      throw new NotFoundException('User not found');
+    }
+    return findedUser;
+  }
+
+  async findUserByCode(code: string) {
+    const findedUser = await this.uRepository.findOne({
+      where: {
+        emailConfirmation: {confirmationCode: code},
+      },
+    });
     if (!findedUser) {
       throw new NotFoundException('User not found');
     }
@@ -37,7 +64,7 @@ export class UsersRepository {
   }
 
   async deleteUserById(id: string) {
-    const findedUser = await this.findUserById(id)
+    const findedUser = await this.findUserById(id);
     return await this.uRepository.delete(id);
   }
 

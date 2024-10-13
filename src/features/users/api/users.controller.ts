@@ -15,7 +15,7 @@ export class UsersController {
   @Post('users')
   @UseGuards(BasicAuthGuard)
   async create(@Body() createUserDto: CreateUserDto) {
-    const userId = await this.usersService.createUser(createUserDto, false);
+    const userId = await this.usersService.createUser(createUserDto, true);
     const user = await this.usersQueryRepository.userOutput(userId)
     return user
   }
