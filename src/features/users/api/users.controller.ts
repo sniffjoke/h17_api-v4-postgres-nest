@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, HttpCode, Query } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { CreateUserDto } from './models/input/create-user.dto';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
@@ -22,9 +22,12 @@ export class UsersController {
 
   @Get('users')
   @UseGuards(BasicAuthGuard)
-  async findAll() {
-    const users = await this.usersService.findAll();
-    return users.map(user => this.usersQueryRepository.userMap(user))
+  async findAll(@Query() query: any) {
+    console.log(query);
+    // const users = await this.usersService.findAll();
+    const users = await this.usersQueryRepository.getAllUsersWithQuery(query)
+    // return users.items.map(user => this.usersQueryRepository.userMap(user))
+    return users
   }
 
   // @Get(':id')
